@@ -67,14 +67,14 @@ is_logging = True
 init_method = 'kaiming'
 noise_fraction, noise_std, noise_is_replace = 0, 10, False
 learning_rate = 0.1
-epochs = 251
+epochs = 5
 save_reps_path = './reps'
-save_interval = 50
+save_interval = 2
 
 
 
 
-project = f'aistatcam2-cifar100-spc-{samples_pc}'
+project = f'aistatcam3-cifar100-28x10-spc-{samples_pc}'
 namegen = NameGen(count_start=random.randint(1, 20), global_prefix=f'')
 tags = ['tt', 'ut']
 
@@ -87,23 +87,23 @@ for i in range(1):
         teacher_filename = f'teacher_ut{i//2}.pt'
         prefix_add = 'ut'
     
-    # teacher
-    prefix = f'TEA-{prefix_add}'
-    wandb.init(project=project, config={
-        'lr': learning_rate, 
-        'alpha': alpha, 
-        'epochs': epochs},
-        group=prefix,
-        name=namegen.get_name(prefix, alpha))
+    # # teacher
+    # prefix = f'TEA-{prefix_add}'
+    # wandb.init(project=project, config={
+    #     'lr': learning_rate, 
+    #     'alpha': alpha, 
+    #     'epochs': epochs},
+    #     group=prefix,
+    #     name=namegen.get_name(prefix, alpha))
     
-    teacher = Teacher(num_classes=num_classes,
-                    is_logging=is_logging,
-                    temperature=temperature,
-                    lr=learning_rate)
-    if i%2==0:
-        teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
-    store_model(teacher, './trained_models', teacher_filename)
-    wandb.finish()
+    # teacher = Teacher(num_classes=num_classes,
+    #                 is_logging=is_logging,
+    #                 temperature=temperature,
+    #                 lr=learning_rate)
+    # if i%2==0:
+    #     teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
+    # store_model(teacher, './trained_models', teacher_filename)
+    # wandb.finish()
     teacher = read_model('./trained_models', teacher_filename)
 
 
@@ -111,7 +111,7 @@ for i in range(1):
     # red models
     prefix = f'RED-{prefix_add}'
     alpha = [1, 100]
-    rnds_ratio = [20, 1/5] #### [10, 1/4]
+    rnds_ratio = [2, 1/2] #### [10, 1/4]
     wandb.init(project=project, config={
         'lr': learning_rate, 
         'alpha': alpha, 
