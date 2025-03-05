@@ -1,0 +1,12 @@
+data/*/
+*.pyc
+*/wandb/*
+*/lightning_logs/*
+*/representations*/*
+*/reps*/*
+*/measures*/*
+*/meas*/*
+*/models/*
+
+experiment7/data/*
+experiment7/temp_data/*
