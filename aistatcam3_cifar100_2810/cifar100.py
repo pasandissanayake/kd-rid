@@ -88,64 +88,64 @@ for i in range(1):
         prefix_add = 'ut'
     
     # teacher
-    # prefix = f'TEA-{prefix_add}'
-    # wandb.init(project=project, config={
-    #     'lr': learning_rate, 
-    #     'alpha': alpha, 
-    #     'epochs': epochs},
-    #     group=prefix,
-    #     name=namegen.get_name(prefix, alpha))
+    prefix = f'TEA-{prefix_add}'
+    wandb.init(project=project, config={
+        'lr': learning_rate, 
+        'alpha': alpha, 
+        'epochs': epochs},
+        group=prefix,
+        name=namegen.get_name(prefix, alpha))
     
-    # teacher = Teacher(num_classes=num_classes,
-    #                 is_logging=is_logging,
-    #                 temperature=temperature,
-    #                 lr=learning_rate)
-    # if i%2==0:
-    #     teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
-    # store_model(teacher, './trained_models', teacher_filename)
-    # wandb.finish()
+    teacher = Teacher(num_classes=num_classes,
+                    is_logging=is_logging,
+                    temperature=temperature,
+                    lr=learning_rate)
+    if i%2==0:
+        teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
+    store_model(teacher, './trained_models', teacher_filename)
+    wandb.finish()
     teacher = read_model('./trained_models', teacher_filename)
 
 
 
-    # # red models
-    # prefix = f'RED-{prefix_add}'
-    # alpha = [1, 100]
-    # rnds_ratio = [20, 1/5] #### [10, 1/4]
-    # wandb.init(project=project, config={
-    #     'lr': learning_rate, 
-    #     'alpha': alpha, 
-    #     'epochs': epochs,
-    #     'roundsratio': rnds_ratio,
-    #     'notes': f'noise_fraction={noise_fraction}'},
-    #     group=prefix,
-    #     name=namegen.get_name(prefix, f'{alpha}-{rnds_ratio}'))
-    # red_student = REDStudentMultistepAlternating(num_classes=num_classes,
-    #                                 is_logging=is_logging,
-    #                                 temperature=temperature,
-    #                                 lr=learning_rate,
-    #                                 init_method=init_method,
-    #                                 teacher=teacher,
-    #                                 red_tf=None,
-    #                                 noise_fraction=noise_fraction,
-    #                                 noise_std=noise_std,
-    #                                 noise_is_replace=noise_is_replace,
-    #                                 alpha=alpha,
-    #                                 late_kd_epoch=None,
-    #                                 save_reps_path=f'{save_reps_path}/reps_red_{tags[i%2]}',
-    #                                 save_interval=save_interval)
-    # red_student.train_model(epochs=epochs, 
-    #                         gradient_clip=100, 
-    #                         train_dataloader=s_train_dl, 
-    #                         val_dataloader=test_dl,
-    #                         n_rounds=rnds_ratio[0],
-    #                         tf_step_ratio=rnds_ratio[1])
-    # store_model(red_student, './trained_models', f'red_student_{tags[i//2]}{i//2}.pt')
-    # wandb.finish()
+    # red models
+    prefix = f'RED-{prefix_add}'
+    alpha = [1, 100]
+    rnds_ratio = [20, 1/5] #### [10, 1/4]
+    wandb.init(project=project, config={
+        'lr': learning_rate, 
+        'alpha': alpha, 
+        'epochs': epochs,
+        'roundsratio': rnds_ratio,
+        'notes': f'noise_fraction={noise_fraction}'},
+        group=prefix,
+        name=namegen.get_name(prefix, f'{alpha}-{rnds_ratio}'))
+    red_student = REDStudentMultistepAlternating(num_classes=num_classes,
+                                    is_logging=is_logging,
+                                    temperature=temperature,
+                                    lr=learning_rate,
+                                    init_method=init_method,
+                                    teacher=teacher,
+                                    red_tf=None,
+                                    noise_fraction=noise_fraction,
+                                    noise_std=noise_std,
+                                    noise_is_replace=noise_is_replace,
+                                    alpha=alpha,
+                                    late_kd_epoch=None,
+                                    save_reps_path=f'{save_reps_path}/reps_red_{tags[i%2]}',
+                                    save_interval=save_interval)
+    red_student.train_model(epochs=epochs, 
+                            gradient_clip=100, 
+                            train_dataloader=s_train_dl, 
+                            val_dataloader=test_dl,
+                            n_rounds=rnds_ratio[0],
+                            tf_step_ratio=rnds_ratio[1])
+    store_model(red_student, './trained_models', f'red_student_{tags[i//2]}{i//2}.pt')
+    wandb.finish()
 
 
 
-    # # vid models
+    # vid models
     prefix = f'VID-{prefix_add}'
     alpha = [1.0, 150.0]
     wandb.init(project=project, config={
