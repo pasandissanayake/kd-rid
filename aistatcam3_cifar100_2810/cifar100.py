@@ -15,12 +15,14 @@ from torchvision import datasets
 from pid.rus import *
 from pid.utils import clustering
 
-from systems.wrncifar100Mod import *
+from systems.wrncifar100A2810Mod import *
 from systems.system_utils import *
 from data.cifar100 import Data
 from data.data_utils import SubsetDataset
 
 import random
+
+torch.set_float32_matmul_precision('medium')
 
 class NameGen:
     def __init__(self, count_start, global_prefix='') -> None:
@@ -34,7 +36,7 @@ class NameGen:
 data = Data('../data/cifar100')
 batch_size = 128
 
-t_train_dl = torch.utils.data.DataLoader(data.train_data, batch_size=batch_size, shuffle=False)
+t_train_dl = torch.utils.data.DataLoader(data.train_data, batch_size=batch_size, shuffle=True)
 
 s_dataset_size = len(data.train_data)
 s_indices = torch.randperm(len(data.train_data)).tolist()[:s_dataset_size]
@@ -78,7 +80,8 @@ project = f'aistatcam3-cifar100-28x10mod-spc-{samples_pc}'
 namegen = NameGen(count_start=random.randint(1, 20), global_prefix=f'')
 tags = ['tt', 'ut']
 
-for i in range(2):
+# for i in range(2):
+for i in [1]:
     alpha = [-1, -1]
     if i%2==0:
         teacher_filename = f'teacher_tt{i//2}.pt'
@@ -88,60 +91,60 @@ for i in range(2):
         prefix_add = 'ut'
     
     # teacher
-    prefix = f'TEA-{prefix_add}'
-    wandb.init(project=project, config={
-        'lr': learning_rate, 
-        'alpha': alpha, 
-        'epochs': epochs},
-        group=prefix,
-        name=namegen.get_name(prefix, alpha))
+    # prefix = f'TEA-{prefix_add}'
+    # wandb.init(project=project, config={
+    #     'lr': learning_rate, 
+    #     'alpha': alpha, 
+    #     'epochs': epochs},
+    #     group=prefix,
+    #     name=namegen.get_name(prefix, alpha))
     
-    teacher = Teacher(num_classes=num_classes,
-                    is_logging=is_logging,
-                    temperature=temperature,
-                    lr=learning_rate)
-    if i%2==0:
-        teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
-    store_model(teacher, './trained_models', teacher_filename)
-    wandb.finish()
+    # teacher = Teacher(num_classes=num_classes,
+    #                 is_logging=is_logging,
+    #                 temperature=temperature,
+    #                 lr=learning_rate)
+    # if i%2==0:
+    #     teacher.train_model(epochs=epochs, gradient_clip=-1, train_dataloader=t_train_dl, val_dataloader=test_dl)
+    # store_model(teacher, './trained_models', teacher_filename)
+    # wandb.finish()
     teacher = read_model('./trained_models', teacher_filename)
 
 
 
-    # red models
-    prefix = f'RED-{prefix_add}'
-    alpha = [1, 10]
-    rnds_ratio = [20, 1/5] #### [10, 1/4]
-    wandb.init(project=project, config={
-        'lr': learning_rate, 
-        'alpha': alpha, 
-        'epochs': epochs,
-        'roundsratio': rnds_ratio,
-        'notes': f'noise_fraction={noise_fraction}'},
-        group=prefix,
-        name=namegen.get_name(prefix, f'{alpha}-{rnds_ratio}'))
-    red_student = REDStudentMultistepAlternating(num_classes=num_classes,
-                                    is_logging=is_logging,
-                                    temperature=temperature,
-                                    lr=learning_rate,
-                                    init_method=init_method,
-                                    teacher=teacher,
-                                    red_tf=None,
-                                    noise_fraction=noise_fraction,
-                                    noise_std=noise_std,
-                                    noise_is_replace=noise_is_replace,
-                                    alpha=alpha,
-                                    late_kd_epoch=None,
-                                    save_reps_path=f'{save_reps_path}/reps_red_{tags[i%2]}',
-                                    save_interval=save_interval)
-    red_student.train_model(epochs=epochs, 
-                            gradient_clip=100, 
-                            train_dataloader=s_train_dl, 
-                            val_dataloader=test_dl,
-                            n_rounds=rnds_ratio[0],
-                            tf_step_ratio=rnds_ratio[1])
-    store_model(red_student, './trained_models', f'red_student_{tags[i//2]}{i//2}.pt')
-    wandb.finish()
+    # # red models
+    # prefix = f'RED-{prefix_add}'
+    # alpha = [1, 10]
+    # rnds_ratio = [20, 1/5] #### [10, 1/4]
+    # wandb.init(project=project, config={
+    #     'lr': learning_rate, 
+    #     'alpha': alpha, 
+    #     'epochs': epochs,
+    #     'roundsratio': rnds_ratio,
+    #     'notes': f'noise_fraction={noise_fraction}'},
+    #     group=prefix,
+    #     name=namegen.get_name(prefix, f'{alpha}-{rnds_ratio}'))
+    # red_student = REDStudentMultistepAlternating(num_classes=num_classes,
+    #                                 is_logging=is_logging,
+    #                                 temperature=temperature,
+    #                                 lr=learning_rate,
+    #                                 init_method=init_method,
+    #                                 teacher=teacher,
+    #                                 red_tf=None,
+    #                                 noise_fraction=noise_fraction,
+    #                                 noise_std=noise_std,
+    #                                 noise_is_replace=noise_is_replace,
+    #                                 alpha=alpha,
+    #                                 late_kd_epoch=None,
+    #                                 save_reps_path=f'{save_reps_path}/reps_red_{tags[i%2]}',
+    #                                 save_interval=save_interval)
+    # red_student.train_model(epochs=epochs, 
+    #                         gradient_clip=100, 
+    #                         train_dataloader=s_train_dl, 
+    #                         val_dataloader=test_dl,
+    #                         n_rounds=rnds_ratio[0],
+    #                         tf_step_ratio=rnds_ratio[1])
+    # store_model(red_student, './trained_models', f'red_student_{tags[i//2]}{i//2}.pt')
+    # wandb.finish()
 
 
 
@@ -175,7 +178,8 @@ for i in range(2):
     wandb.finish()
 
 
-    if i==0:
+    # if i==0:
+    if i==0 or i==1: 
         # no-kd model
         prefix = 'BAS'
         wandb.init(project=project, config={
