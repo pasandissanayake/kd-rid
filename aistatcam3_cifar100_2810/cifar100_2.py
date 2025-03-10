@@ -42,7 +42,7 @@ s_dataset_size = len(data.train_data)
 s_indices = torch.randperm(len(data.train_data)).tolist()[:s_dataset_size]
 s_train_data = torch.utils.data.Subset(data.train_data, s_indices)
 
-samples_pc = 100
+samples_pc = 500
 s_train_data = SubsetDataset(data.train_data, samples_per_class=samples_pc)
 
 s_train_dl = torch.utils.data.DataLoader(s_train_data, batch_size=batch_size, shuffle=True)
@@ -81,7 +81,7 @@ namegen = NameGen(count_start=random.randint(1, 20), global_prefix=f'')
 tags = ['tt', 'ut']
 
 # for i in range(2):
-for i in [0,1]:
+for i in [1]:
     alpha = [-1, -1]
     if i%2==0:
         teacher_filename = f'teacher_tt{i//2}.pt'
@@ -113,8 +113,8 @@ for i in [0,1]:
 
     # red models
     prefix = f'RED-{prefix_add}'
-    alpha = [1, 1]
-    rnds_ratio = [5, 1/5] #### [10, 1/4]
+    alpha = [1, 10]
+    rnds_ratio = [10, 1/4] #### [10, 1/4]
     wandb.init(project=project, config={
         'lr': learning_rate, 
         'alpha': alpha, 
@@ -178,11 +178,10 @@ for i in [0,1]:
     # wandb.finish()
 
 
-    # # if i==0:
+    # if i==0:
     # if i==0 or i==1: 
     #     # no-kd model
     #     prefix = 'BAS'
-    #     alpha = [-1, -1]
     #     wandb.init(project=project, config={
     #         'lr': learning_rate,
     #         'epochs': epochs,

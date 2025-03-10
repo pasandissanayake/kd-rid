@@ -12,6 +12,8 @@ from dit import Distribution
 from dit.shannon import mutual_information
 
 import re
+import time
+from datetime import timedelta
 
 
 
@@ -57,7 +59,7 @@ def compute_measures(rep_i, t_reps, s_reps, labels):
 
 dirs = []
 save_reps_path = './aistatcam3_cifar100_2810/reps'
-save_meas_path = './aistatcam3_cifar100_2810/meas'
+save_meas_path = './aistatcam3_cifar100_2810/meas100spc'
 # for tag in ['tt', 'ut']:
 #     for kd in ['red', 'vid', 'bas']:
 #         dirs.append((f'{save_reps_path}/reps_{kd}_{tag}', f'{save_meas_path}/meas_{kd}_{tag}'))
@@ -66,8 +68,9 @@ save_meas_path = './aistatcam3_cifar100_2810/meas'
 # dirs.append((f'{save_reps_path}/reps_ted_ut', f'{save_meas_path}/meas_ted_ut'))
 
 dirs = [
-    (f'{save_reps_path}/reps_red_tt', f'{save_meas_path}/measures_red_tt1'),
-    (f'{save_reps_path}/reps_red_ut', f'{save_meas_path}/measures_red_ut1'),
+    # (f'{save_reps_path}/reps_vid_tt_2503100037', f'{save_meas_path}/measures_vid_tt'),
+    # (f'{save_reps_path}/reps_vid_ut_2503100754', f'{save_meas_path}/measures_vid_ut'),
+    # (f'{save_reps_path}/reps_bas_tt_2503100335', f'{save_meas_path}/measures_bas_tt'),
 ]
 
 n_reps = 3
@@ -82,9 +85,9 @@ for reps_dir, meas_dir in dirs:
 
     for rep_i in [2]:
     # for rep_i in range(3):
-        # for i in range(0,251,50):
-    # for rep_i in [1]:
-        for i in [250]:
+        for i in range(0,251,50):
+        # for i in [250]:
+            start_time = time.time()
             print(f'rep_i={rep_i}, i={i}')
             t_reps, s_reps, labels = fetch_reps(i, reps_dir, n_reps=n_reps)
             measures = compute_measures(rep_i, t_reps, s_reps, labels)
@@ -92,3 +95,6 @@ for reps_dir, meas_dir in dirs:
             filename = f'{meas_dir}/reps_{rep_i}_{i}'
             with open(filename, 'wb') as file:
                 pkl.dump(measures, file)
+
+            elapsed_time = time.time() - start_time
+            print(f'time elapsed: {str(timedelta(seconds=elapsed_time))}')
